@@ -35,6 +35,7 @@ namespace QuotationApi.Controllers
         public ActionResult AddQuotation(Quotation model)
         {
             DeadLine();
+            model.PubDate = DateTime.Now;
             if (ModelState.IsValid)
             {
                 _context.Quotations.Add(model);
