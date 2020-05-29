@@ -10,6 +10,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using QuotationApi.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Sqlite;
 
 namespace QuotationApi
 {
@@ -25,6 +28,9 @@ namespace QuotationApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDbContext<DataContext>(opt=>
+                opt.UseSqlite(Configuration.GetConnectionString("Default"))
+            );
             services.AddControllers();
         }
 
@@ -35,8 +41,6 @@ namespace QuotationApi
             {
                 app.UseDeveloperExceptionPage();
             }
-
-            app.UseHttpsRedirection();
 
             app.UseRouting();
 

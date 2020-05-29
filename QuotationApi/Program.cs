@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using QuotationApi.Models;
 
 namespace QuotationApi
 {
@@ -13,7 +16,22 @@ namespace QuotationApi
     {
         public static void Main(string[] args)
         {
-            CreateHostBuilder(args).Build().Run();
+            var host = CreateHostBuilder(args).Build();
+            using(var scope = host.Services.CreateScope())
+            {
+                var services = scope.ServiceProvider;
+                try
+                {
+                    var context = services.GetRequiredService<DataContext>();
+                    context.Database.Migrate();
+                }
+                catch (Exception ex)
+                {
+                    var logget = services.GetRequiredService<ILogger<Program>>();
+                    logget.LogError(ex,"There was an error during migration");
+                }
+            }
+            host.Run();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
