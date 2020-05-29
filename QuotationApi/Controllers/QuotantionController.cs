@@ -20,18 +20,21 @@ namespace QuotationApi.Controllers
         [HttpGet]
         public async Task<JsonResult> Get()
         {
+            DeadLine();
             var li = await _context.Quotations.OrderByDescending(p => p.PubDate).ToListAsync();
             return new JsonResult(li);
         }
         [HttpGet("{id}")]
         public async Task<JsonResult> QuotationInfo(int id)
         {
+            DeadLine();
             var model = _context.Quotations.FirstAsync(q => q.Id == id);
             return new JsonResult(model);
         }
         [HttpPost]
         public ActionResult AddQuotation(Quotation model)
         {
+            DeadLine();
             if (ModelState.IsValid)
             {
                 _context.Quotations.Add(model);
@@ -44,6 +47,7 @@ namespace QuotationApi.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult> EditQuotation(Quotation model, int id)
         {
+            DeadLine();
             try
             {
                 var lmodel = await _context.Quotations.FirstAsync(p => p.Id == id);
@@ -61,6 +65,7 @@ namespace QuotationApi.Controllers
         [HttpDelete("{id}")]
         public ActionResult DeleteQuotation(int id)
         {
+            DeadLine();
             try
             {
                 var model = _context.Quotations.First(p => p.Id == id);
@@ -72,6 +77,15 @@ namespace QuotationApi.Controllers
             {
                 return BadRequest();
             }
+        }
+        public void DeadLine()
+        {
+            var li = _context.Quotations.Where(q => (DateTime.Now.Date - q.PubDate.Date).Days > 31).ToList();
+            li.ForEach(p =>
+            {
+                _context.Quotations.Remove(p);
+            });
+            _context.SaveChanges();
         }
     }
 }
